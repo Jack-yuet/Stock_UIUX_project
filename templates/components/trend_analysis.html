@@ -1,0 +1,115 @@
+<!-- Trend Analysis Component -->
+<div class="info-section">
+    <h2 class="section-title">Trend Analysis</h2>
+    
+    <!-- Loading -->
+    <div id="trendAnalysisLoading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <span>Analyzing Trend...</span>
+    </div>
+    
+    <!-- Content -->
+    <div id="trendAnalysisContent" style="display: none;">
+        <!-- Candlestick Pattern Analysis -->
+        <div class="table-container">
+            <div class="table-header">
+                Candlestick Pattern Analysis
+            </div>
+            <div class="scrollable-table">
+                <table id="candlestickPatternsTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Pattern Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Technical Indicator Analysis -->
+        <div class="table-container" style="margin-top: 30px;">
+            <div class="table-header">
+                Technical Indicator Analysis
+            </div>
+            <div class="scrollable-table">
+                <table id="technicalIndicatorsTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Indicator</th>
+                            <th>Signal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Support & Resistance Analysis -->
+        <div class="table-container" style="margin-top: 30px;">
+            <div class="table-header">
+                Support & Resistance Analysis
+            </div>
+            <div class="scrollable-table">
+                <table id="supportResistanceTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Strength</th>
+                            <th>Touches</th>
+                            <th>Distance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- All Levels -->
+        <div class="table-container" style="margin-top: 30px;">
+            <div class="table-header">
+                All S&R Levels
+            </div>
+            <div class="scrollable-table">
+                <table id="allLevelsTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Strength</th>
+                            <th>Touches</th>
+                            <th>Distance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Conclusion -->
+        <div class="analysis-block">
+            <h4>Comprehensive Trend Conclusion</h4>
+            <div class="conclusion-box">
+                <p id="trendConclusion"></p>
+            </div>
+        </div>
+        
+        <!-- Detailed Summary -->
+        <div class="analysis-block">
+            <h4>Detailed Analysis Summary</h4>
+            <div class="summary-box">
+                <p id="detailedSummary"></p>
+            </div>
+        </div>
+    </div>
+</div> 

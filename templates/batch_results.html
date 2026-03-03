@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Analysis Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/batch_analysis.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/score_details.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Batch Analysis Results</h1>
+            <p>Stock Trend Analysis Result Summary</p>
+        </div>
+
+        <!-- Back Button -->
+        <div class="back-section">
+            <a href="/" class="back-btn">← Back to Home</a>
+        </div>
+
+        <!-- Analysis Results -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-container">
+                <h3>Analysis Results</h3>
+                
+                <!-- Statistics -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalStocks">0</div>
+                        <div class="stat-label">Total Stocks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="buySignals">0</div>
+                        <div class="stat-label">Buy Signals</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="sellSignals">0</div>
+                        <div class="stat-label">Sell Signals</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="neutralSignals">0</div>
+                        <div class="stat-label">Neutral Signals</div>
+                    </div>
+                </div>
+
+                <!-- Buy Signal Stocks -->
+                <div class="signal-section">
+                    <h4>🟢 Strong Buy Signal Stocks</h4>
+                    <div class="table-container">
+                        <div class="scrollable-table">
+                            <table class="data-table" id="buySignalsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Stock Code</th>
+                                        <th>Stock Name</th>
+                                        <th>Overall Score</th>
+                                        <th>Main Signals</th>
+                                        <th>Score Trend</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sell Signal Stocks -->
+                <div class="signal-section">
+                    <h4>🔴 Strong Sell Signal Stocks</h4>
+                    <div class="table-container">
+                        <div class="scrollable-table">
+                            <table class="data-table" id="sellSignalsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Stock Code</th>
+                                        <th>Stock Name</th>
+                                        <th>Overall Score</th>
+                                        <th>Main Signals</th>
+                                        <th>Score Trend</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Results -->
+                <div class="signal-section">
+                    <h4>Full Analysis Results</h4>
+                    <div class="table-container">
+                        <div class="scrollable-table">
+                            <table class="data-table" id="allResultsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Stock Code</th>
+                                        <th>Stock Name</th>
+                                        <th>Overall Score</th>
+                                        <th>Trend Judgment</th>
+                                        <th>Tech Signals</th>
+                                        <th>Candlestick Patterns</th>
+                                        <th>Score Trend</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Results -->
+                <div class="export-section">
+                    <button class="export-btn" id="exportBtn">Export Results</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error" id="errorMessage" style="display: none;"></div>
+    </div>
+
+    <!-- Trend Modal -->
+    <div class="trend-modal" id="trendModal">
+        <div class="trend-modal-content">
+            <div class="trend-modal-header">
+                <span class="trend-close" id="trendClose">&times;</span>
+            </div>
+            <div class="trend-modal-body" id="trendModalBody">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="{{ url_for('static', filename='js/modules/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/score_engine.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/score_details.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/batch_results.js') }}"></script>
+</body>
+</html> 

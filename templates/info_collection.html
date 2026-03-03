@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Info Collection - 30min Research List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .info-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .search-input {
+            padding: 12px 20px;
+            width: 300px;
+            font-size: 16px;
+            border: 2px solid #eee;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .search-btn {
+            padding: 12px 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .search-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        
+        /* Tiered Display */
+        .tier-section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .tier-header {
+            padding: 15px 20px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tier-5 { background: linear-gradient(135deg, #d32f2f, #b71c1c); } /* Top Tier */
+        .tier-4 { background: linear-gradient(135deg, #f57c00, #e65100); } /* High Tier */
+        .tier-3 { background: linear-gradient(135deg, #1976d2, #0d47a1); } /* Pro Tier */
+        .tier-2 { background: linear-gradient(135deg, #388e3c, #1b5e20); } /* Media Tier */
+        .tier-1 { background: linear-gradient(135deg, #7b1fa2, #4a148c); } /* Social/Other */
+
+        .tier-content {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .link-card {
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 15px;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+        .link-card:hover {
+            border-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.1);
+        }
+        .link-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        .link-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+        .link-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .guide-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 40px;
+            border-left: 4px solid #6c757d;
+        }
+        .guide-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .stars { color: #ffca28; margin-left: 10px; }
+        
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-link {
+            text-decoration: none;
+            color: #666;
+        }
+        .back-link:hover { color: #007bff; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="info-container">
+        <div class="header-bar">
+            <h1>Stock Info Collection</h1>
+            <a href="/" class="back-link">← Back to Home</a>
+        </div>
+
+        <div class="search-section">
+            <h2>Generate 30-min Research List & AI Report</h2>
+            <p style="color: #666; margin-bottom: 20px;">Aggregate authoritative sources like regulators and official media, with AI analysis</p>
+            
+            <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; display: none;" id="apiSettingsPanel">
+                <div style="font-weight: bold; margin-bottom: 10px; color: #333;">AI API Settings (OpenAI Compatible)</div>
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-size: 13px; color: #666;">API Key (Required):</label>
+                    <input type="password" id="apiKey" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="sk-...">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; color: #666;">Base URL (Optional):</label>
+                        <input type="text" id="apiBaseUrl" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="https://api.openai.com/v1" value="https://api.deepseek.com">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; color: #666;">Model Name (Optional):</label>
+                        <input type="text" id="apiModel" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="gpt-3.5-turbo" value="deepseek-chat">
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: #999; margin-top: 5px;">* Recommended: DeepSeek, Kimi, etc. Settings saved locally.</div>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <input type="text" id="stockCode" class="search-input" placeholder="Enter Stock Code (e.g. 600519)">
+                <button class="search-btn" onclick="collectInfo()">Get Info Sources</button>
+                <button class="search-btn" style="background-color: #6f42c1;" onclick="toggleApiSettings()">✨ AI Deep Research</button>
+            </div>
+            <div id="startAiBtnContainer" style="margin-top: 15px; display: none;">
+                <button class="search-btn" style="background-color: #28a745; width: 200px;" onclick="startAIResearch()">🚀 Start AI Analysis</button>
+            </div>
+        </div>
+
+        <div id="loading" style="display: none; text-align: center; padding: 40px;">
+            <div style="font-size: 18px; color: #666;">Aggregating authoritative sources...</div>
+        </div>
+        
+        <div id="aiLoading" style="display: none; text-align: center; padding: 40px;">
+            <div style="font-size: 18px; color: #6f42c1; font-weight: bold;">🧠 AI is reading reports and news, generating summary...</div>
+            <p style="color: #999;">(Calling cloud LLM API, please wait)</p>
+        </div>
+
+        <!-- AI Report Area -->
+        <div id="aiResultArea" style="display: none; margin-bottom: 40px; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(111, 66, 193, 0.1); border: 1px solid #e9ecef;">
+            <div style="display: flex; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #6f42c1; padding-bottom: 10px;">
+                <span style="font-size: 24px; margin-right: 10px;">🤖</span>
+                <h2 style="margin: 0; color: #333;">AI Research Report</h2>
+            </div>
+            <div id="aiReportContent" style="line-height: 1.8; color: #444;"></div>
+        </div>
+
+        <div id="resultArea" style="display: none;">
+            <div class="header-bar">
+                <h2 id="stockTitle"></h2>
+            </div>
+
+            <!-- 1. Top Tier -->
+            <div class="tier-section">
+                <div class="tier-header tier-5">
+                    <span>1. Top Authority: Regulators & Exchanges</span>
+                    <span class="stars">★★★★★</span>
+                </div>
+                <div class="tier-content" id="tierTop"></div>
+            </div>
+
+            <!-- 2. High Tier -->
+            <div class="tier-section">
+                <div class="tier-header tier-4">
+                    <span>2. High Authority: Official Media & Associations</span>
+                    <span class="stars">★★★★☆</span>
+                </div>
+                <div class="tier-content" id="tierHigh"></div>
+            </div>
+
+            <!-- 3. Pro Tier -->
+            <div class="tier-section">
+                <div class="tier-header tier-3">
+                    <span>3. Pro Authority: Research & Deep Analysis</span>
+                    <span class="stars">★★★★</span>
+                </div>
+                <div class="tier-content" id="tierPro"></div>
+            </div>
+
+            <!-- 4. Industry Tier -->
+            <div class="tier-section">
+                <div class="tier-header tier-2">
+                    <span>4. Industry Authority: Financial Media & Data</span>
+                    <span class="stars">★★★☆</span>
+                </div>
+                <div class="tier-content" id="tierMedia"></div>
+            </div>
+            
+            <!-- 5. Community/Third Party -->
+            <div class="tier-section">
+                <div class="tier-header tier-1">
+                    <span>5. Reference: Social Media & Third Party</span>
+                    <span class="stars">★★★</span>
+                </div>
+                <div class="tier-content" id="tierCommunity"></div>
+            </div>
+
+            <div class="guide-section">
+                <div class="guide-title">💡 Best Practice Guide</div>
+                <ul style="padding-left: 20px; line-height: 1.8; color: #555;">
+                    <li><strong>Step 1 (Mandatory):</strong> Check "Top Authority" (e.g. CNINFO) for recent 3 years' annual reports and inquiry letters.</li>
+                    <li><strong>Step 2 (Deep Dive):</strong> Check "Pro Authority" (e.g. Research Centers) for 3-5 deep reports from different brokers for cross-verification.</li>
+                    <li><strong>Step 3 (Risk Check):</strong> Monitor "Top Authority" (Exchange Websites) for regulatory measures to ensure no investigations.</li>
+                    <li><strong>Step 4 (Sentiment):</strong> Browse "Social Media" (e.g. Guba/Xueqiu) for market sentiment only, do NOT trade based on it.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load API settings
+        window.onload = function() {
+            const savedKey = localStorage.getItem('stock_ai_key');
+            const savedUrl = localStorage.getItem('stock_ai_url');
+            const savedModel = localStorage.getItem('stock_ai_model');
+            
+            if (savedKey) document.getElementById('apiKey').value = savedKey;
+            if (savedUrl) document.getElementById('apiBaseUrl').value = savedUrl;
+            if (savedModel) document.getElementById('apiModel').value = savedModel;
+        };
+
+        function toggleApiSettings() {
+            const panel = document.getElementById('apiSettingsPanel');
+            const btnContainer = document.getElementById('startAiBtnContainer');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                btnContainer.style.display = 'block';
+            } else {
+                panel.style.display = 'none';
+                btnContainer.style.display = 'none';
+            }
+        }
+
+        async function startAIResearch() {
+            const code = document.getElementById('stockCode').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const baseUrl = document.getElementById('apiBaseUrl').value;
+            const model = document.getElementById('apiModel').value;
+
+            if (!code) {
+                alert('Please enter stock code');
+                return;
+            }
+            if (!apiKey) {
+                alert('Please enter API Key (Click "✨ AI Deep Research" to settings)');
+                toggleApiSettings();
+                return;
+            }
+
+            // Save settings
+            localStorage.setItem('stock_ai_key', apiKey);
+            localStorage.setItem('stock_ai_url', baseUrl);
+            localStorage.setItem('stock_ai_model', model);
+
+            document.getElementById('aiLoading').style.display = 'block';
+            document.getElementById('aiResultArea').style.display = 'none';
+            document.getElementById('aiReportContent').innerHTML = '';
+
+            const apiConfig = {
+                api_key: apiKey,
+                base_url: baseUrl,
+                model: model
+            };
+
+            try {
+                const response = await fetch('/api/ai_research', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        stock_code: code,
+                        api_config: apiConfig
+                    })
+                });
+
+                const result = await response.json();
+                document.getElementById('aiLoading').style.display = 'none';
+
+                if (result.success) {
+                    document.getElementById('aiResultArea').style.display = 'block';
+                    document.getElementById('aiReportContent').innerHTML = marked.parse(result.report);
+                } else {
+                    alert(result.message || 'AI Research Failed');
+                }
+            } catch (error) {
+                document.getElementById('aiLoading').style.display = 'none';
+                alert('System error, please try again');
+            }
+        }
+
+        async function collectInfo() {
+            const code = document.getElementById('stockCode').value;
+            if (!code) {
+                alert('Please enter stock code');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultArea').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/info_collection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stock_code: code })
+                });
+
+                const result = await response.json();
+                document.getElementById('loading').style.display = 'none';
+
+                if (result.success) {
+                    renderLinks(result);
+                } else {
+                    alert(result.message || 'Failed to get info');
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                alert('System error, please try again');
+            }
+        }
+
+        function renderLinks(data) {
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('stockTitle').innerText = `${data.stock_name} (${data.stock_code}) - Authority Sources`;
+
+            const createCard = (link) => `
+                <a href="${link.url}" target="_blank" class="link-card">
+                    <div class="link-title">
+                        <span class="link-icon">🔗</span> ${link.name}
+                    </div>
+                    <div class="link-desc">${link.desc}</div>
+                </a>
+            `;
+
+            // Render tiers
+            const tiers = {
+                'tierTop': data.links.top_tier,
+                'tierHigh': data.links.high_tier,
+                'tierPro': data.links.pro_tier,
+                'tierMedia': data.links.media_tier,
+                'tierCommunity': data.links.community_tier
+            };
+
+            for (const [elementId, links] of Object.entries(tiers)) {
+                const container = document.getElementById(elementId);
+                if (links && links.length > 0) {
+                    container.innerHTML = links.map(createCard).join('');
+                } else {
+                    container.innerHTML = '<div style="color:#999; padding:10px;">No recommended sources in this category</div>';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

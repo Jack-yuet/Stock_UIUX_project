@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Backtest & Model - Intelligent Stock Analysis System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .backtest-layout {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .backtest-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .nav-section {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .nav-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(108, 117, 125, 0.2);
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .config-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .config-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .config-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .model-status {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-left: 4px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .status-value {
+            font-weight: 700;
+            color: #2c3e50;
+            padding: 5px 12px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+        }
+
+        .status-trained {
+            color: #28a745 !important;
+        }
+
+        .status-untrained {
+            color: #dc3545 !important;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: white;
+            font-size: 1em;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .form-select:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .action-section {
+            margin-bottom: 40px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 18px 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            min-width: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a5acd 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn:disabled {
+            background: linear-gradient(135deg, #adb5bd 0%, #95a5a6 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 3px 10px rgba(173, 181, 189, 0.2);
+        }
+
+        .train-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .train-btn:hover {
+            background: linear-gradient(135deg, #218838 0%, #1ab394 100%);
+            box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+        }
+
+        .backtest-btn {
+            background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .backtest-btn:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #520dc2 100%);
+            box-shadow: 0 12px 35px rgba(0, 123, 255, 0.4);
+        }
+
+        .results-output {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #495057;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #667eea #f1f3f4;
+        }
+
+        .results-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .results-output::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 4px;
+        }
+
+        .results-output::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
+        .chart-container-custom {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+            margin-top: 30px;
+        }
+
+        .chart-header-custom {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+            color: white;
+            padding: 20px 25px;
+            font-weight: 700;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-content-custom {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .no-chart-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .feature-icons {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-align: center;
+            min-width: 40px;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #333;
+        }
+
+        .badge-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+
+        /* Override styles */
+        .back-section { display: none; }
+        .back-btn { display: none !important; }
+
+        @media (max-width: 768px) {
+            .config-section {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .config-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body class="backtest-layout">
+    <div class="backtest-container">
+        <div class="header">
+            <h1>🤖 Offline Backtest & Model</h1>
+            <p>Intelligent Quantitative Trading Strategy Verification Platform</p>
+        </div>
+
+        <div class="nav-section">
+            <a href="/" class="nav-link">
+                🏠 Back to Home
+            </a>
+        </div>
+
+        <div class="content">
+            <div class="config-section">
+                <!-- Model Status Card -->
+                <div class="config-card">
+                    <h3><span class="feature-icons">📊</span>Model Status</h3>
+                    <div class="model-status">
+                        <div class="status-item">
+                            <span class="status-label">Train Status:</span>
+                            <span id="modelStatus" class="status-value status-untrained">--</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Forecast Period:</span>
+                            <span id="trainHorizon" class="status-value">--</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Last Trained:</span>
+                            <span id="lastTrained" class="status-value">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Config Card -->
+                <div class="config-card">
+                    <h3><span class="feature-icons">⚙️</span>Model Config</h3>
+                    <div class="form-group">
+                        <label for="horizonSelect">Forecast Period (Days):</label>
+                        <select id="horizonSelect" class="form-select">
+                            <option value="1">1 Day - Short Term</option>
+                            <option value="3">3 Days - Mid-Short Term</option>
+                            <option value="5" selected>5 Days - Mid Term</option>
+                            <option value="7">7 Days - Cycle Trend</option>
+                            <option value="10">10 Days - Long Term</option>
+                            <option value="20">20 Days - Extra Long Term</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modelSelect">Algorithm Model:</label>
+                        <select id="modelSelect" class="form-select">
+                            <option value="logistic">Logistic Regression</option>
+                            <option value="xgb" selected>XGBoost</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <h3 class="section-title"><span class="feature-icons">🚀</span>Model Operations</h3>
+                <div class="action-buttons">
+                    <button id="trainBtn" class="action-btn train-btn">
+                        🎯 Train Model
+                    </button>
+                    <button id="backtestBtn" class="action-btn backtest-btn">
+                        📈 Fast Backtest
+                    </button>
+                </div>
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner"></div>
+                    <p>Processing, please wait...</p>
+                </div>
+            </div>
+
+            <!-- Results Display -->
+            <div class="results-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <span class="feature-icons">📋</span>
+                        <span>Execution Results</span>
+                    </div>
+                    <div class="scrollable-table">
+                        <div id="outputText" class="results-output">Waiting for execution...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Prediction Results -->
+            <div id="detailedResults" class="chart-container-custom" style="display: none;">
+                <div class="chart-header-custom">
+                    <span class="feature-icons">🎯</span>
+                    <span>Stock Prediction Details</span>
+                </div>
+                <div class="chart-content-custom">
+                    <div id="predictionTable" style="overflow-x: auto;">
+                        <table class="data-table" style="min-width: 800px;">
+                            <thead>
+                                <tr>
+                                    <th>Stock Code</th>
+                                    <th>Stock Name</th>
+                                    <th>Probability</th>
+                                    <th>Prediction</th>
+                                    <th>Confidence</th>
+                                    <th>Actual Result</th>
+                                    <th>Accuracy</th>
+                                    <th>Explanation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="predictionTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="predictionSummary" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Curve Chart -->
+            <div class="chart-container-custom">
+                <div class="chart-header-custom">
+                    <span class="feature-icons">📊</span>
+                    <span>Learning Curve Analysis (XGBoost)</span>
+                </div>
+                <div class="chart-content-custom">
+                    <div id="learnCurve" style="height: 400px;">
+                        <div class="no-chart-data">
+                            📈 Learning curve will appear after XGBoost backtest
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/modules/api.js') }}"></script>
+    <script>
+        function setOutput(obj) {
+            const formatted = JSON.stringify(obj, null, 2);
+            $('#outputText').text(formatted);
+            
+            // If detailed predictions exist, display friendly UI
+            if (obj && obj.data && obj.data.detailed_predictions) {
+                displayDetailedPredictions(obj);
+                $('#detailedResults').show();
+            } else {
+                $('#detailedResults').hide();
+            }
+        }
+
+        function displayDetailedPredictions(result) {
+            const predictions = result.data.detailed_predictions;
+            const summary = result.summary;
+            const metrics = result.metrics;
+            
+            // Clear table
+            $('#predictionTableBody').empty();
+            
+            // Fill table
+            predictions.forEach(pred => {
+                const row = `
+                    <tr>
+                        <td>${pred.stock_code}</td>
+                        <td>${pred.stock_name || pred.stock_code}</td>
+                        <td style="color: ${pred.probability > 0.5 ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                            ${(pred.probability * 100).toFixed(1)}%
+                        </td>
+                        <td style="color: ${pred.prediction === 'Bullish' ? '#28a745' : '#dc3545'};">
+                            ${pred.prediction}
+                        </td>
+                        <td>
+                            <span class="badge ${pred.confidence === 'High' ? 'badge-success' : pred.confidence === 'Medium' ? 'badge-warning' : 'badge-secondary'}">
+                                ${pred.confidence}
+                            </span>
+                        </td>
+                        <td style="color: ${pred.actual_result === 'Actual Up' ? '#28a745' : '#dc3545'};">
+                            ${pred.actual_result}
+                        </td>
+                        <td>
+                            <span style="color: ${pred.is_correct ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                                ${pred.is_correct ? '✓ Correct' : '✗ Wrong'}
+                            </span>
+                        </td>
+                        <td style="font-size: 0.9em;">${pred.explanation}</td>
+                    </tr>
+                `;
+                $('#predictionTableBody').append(row);
+            });
+            
+            // Display summary
+            const summaryHtml = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="info-card">
+                        <div class="info-label">Total Predictions</div>
+                        <div class="info-value">${summary.total_predictions}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Accuracy</div>
+                        <div class="info-value" style="color: ${metrics.accuracy > 0.6 ? '#28a745' : '#dc3545'};">
+                            ${(metrics.accuracy * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Correct Predictions</div>
+                        <div class="info-value">${summary.correct_predictions} / ${summary.total_predictions}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">High Confidence</div>
+                        <div class="info-value">${summary.high_confidence_predictions}</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">Avg Probability</div>
+                        <div class="info-value">${(summary.avg_probability * 100).toFixed(1)}%</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-label">AUC Score</div>
+                        <div class="info-value">${metrics.auc ? metrics.auc.toFixed(3) : 'N/A'}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 8px; font-size: 0.95em;">
+                    <strong>📊 Model Analysis:</strong>
+                    ${generateModelAnalysis(metrics, summary)}
+                </div>
+            `;
+            $('#predictionSummary').html(summaryHtml);
+        }
+
+        function generateModelAnalysis(metrics, summary) {
+            let analysis = [];
+            
+            if (metrics.accuracy > 0.8) {
+                analysis.push("Model accuracy is very high, excellent performance");
+            } else if (metrics.accuracy > 0.6) {
+                analysis.push("Model accuracy is moderate, has some predictive power");
+            } else {
+                analysis.push("Model accuracy is low, needs optimization");
+            }
+            
+            if (summary.avg_probability > 0.8 || summary.avg_probability < 0.2) {
+                analysis.push("Model predictions are too extreme, possible overfitting");
+            }
+            
+            if (metrics.auc && metrics.auc > 0.7) {
+                analysis.push("Good AUC score, strong classification ability");
+            } else if (metrics.auc && metrics.auc < 0.6) {
+                analysis.push("Low AUC score, limited classification ability");
+            }
+            
+            if (summary.high_confidence_predictions === 0) {
+                analysis.push("All predictions have low confidence, model is uncertain");
+            }
+            
+            return analysis.join("; ") + ".";
+        }
+
+        function showLoading() {
+            $('#loadingSpinner').show();
+            $('.action-btn').prop('disabled', true);
+        }
+
+        function hideLoading() {
+            $('#loadingSpinner').hide();
+            $('.action-btn').prop('disabled', false);
+        }
+
+        function plotLearning(curve) {
+            if (!curve || !curve.train_logloss || curve.train_logloss.length === 0) {
+                $('#learnCurve').html('<div class="no-chart-data">📈 No learning curve data</div>');
+                return;
+            }
+            
+            const x = Array.from({length: curve.train_logloss.length}, (_, i) => i + 1);
+            const trainTrace = {
+                x: x,
+                y: curve.train_logloss,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Train Loss',
+                line: { color: '#28a745', width: 3 },
+                marker: { size: 6 }
+            };
+            const testTrace = {
+                x: x,
+                y: curve.test_logloss,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Test Loss',
+                line: { color: '#dc3545', width: 3 },
+                marker: { size: 6 }
+            };
+            
+            const layout = {
+                title: {
+                    text: 'XGBoost Training Process Monitor',
+                    font: { size: 16, family: 'SF Pro Display, sans-serif' }
+                },
+                xaxis: {
+                    title: 'Iteration',
+                    showgrid: true,
+                    gridcolor: '#f1f3f4'
+                },
+                yaxis: {
+                    title: 'Log Loss',
+                    showgrid: true,
+                    gridcolor: '#f1f3f4'
+                },
+                legend: {
+                    orientation: 'h',
+                    x: 0.5,
+                    xanchor: 'center',
+                    y: 1.15
+                },
+                margin: { l: 60, r: 40, t: 80, b: 60 },
+                plot_bgcolor: 'white',
+                paper_bgcolor: 'white'
+            };
+            
+            Plotly.newPlot('learnCurve', [trainTrace, testTrace], layout, {
+                displayModeBar: false,
+                responsive: true
+            });
+        }
+
+        function refreshModelInfo() {
+            api.getModelInfo()
+                .done(function(resp) {
+                    if (resp.success && resp.trained) {
+                        $('#modelStatus').text('Trained').removeClass('status-untrained').addClass('status-trained');
+                        $('#lastTrained').text(resp.modified || '--');
+                        if (resp.meta && resp.meta.horizon) {
+                            $('#trainHorizon').text(resp.meta.horizon + ' Days');
+                        }
+                    } else {
+                        $('#modelStatus').text('Untrained').removeClass('status-trained').addClass('status-untrained');
+                        $('#lastTrained').text('--');
+                        $('#trainHorizon').text('--');
+                    }
+                })
+                .fail(function() {
+                    $('#modelStatus').text('Failed').removeClass('status-trained').addClass('status-untrained');
+                    $('#lastTrained').text('--');
+                    $('#trainHorizon').text('--');
+                });
+        }
+
+        $(document).ready(function() {
+            refreshModelInfo();
+
+            $('#trainBtn').on('click', function() {
+                const h = parseInt($('#horizonSelect').val());
+                const m = $('#modelSelect').val();
+                
+                showLoading();
+                api.trainModel(h, m)
+                    .done(function(resp) {
+                        setOutput(resp);
+                        refreshModelInfo();
+                    })
+                    .fail(function(xhr) {
+                        setOutput({
+                            success: false,
+                            message: xhr.responseText || 'Training failed'
+                        });
+                    })
+                    .always(function() {
+                        hideLoading();
+                    });
+            });
+
+            $('#backtestBtn').on('click', function() {
+                const h = parseInt($('#horizonSelect').val());
+                const m = $('#modelSelect').val();
+                
+                showLoading();
+                api.backtestModel(h, m)
+                    .done(function(resp) {
+                        setOutput(resp);
+                        if (resp && resp.data && resp.data.learning_curve) {
+                            plotLearning(resp.data.learning_curve);
+                        } else {
+                            plotLearning(null);
+                        }
+                    })
+                    .fail(function(xhr) {
+                        setOutput({
+                            success: false,
+                            message: xhr.responseText || 'Backtest failed'
+                        });
+                        plotLearning(null);
+                    })
+                    .always(function() {
+                        hideLoading();
+                    });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

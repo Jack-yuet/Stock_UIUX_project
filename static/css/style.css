@@ -1,0 +1,1038 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.header h1 {
+    font-size: 3em;
+    margin-bottom: 15px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 1;
+}
+
+.header p {
+    font-size: 1.3em;
+    opacity: 0.95;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+}
+
+.search-section {
+    padding: 40px 30px;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 40px;
+}
+
+.search-box {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 60px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    background: white;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.search-box:focus-within {
+    border-color: #667eea;
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+}
+
+.search-input {
+    flex: 1;
+    padding: 18px 30px;
+    border: none;
+    outline: none;
+    font-size: 1.1em;
+    background: transparent;
+    font-family: inherit;
+}
+
+.search-input::placeholder {
+    color: #adb5bd;
+    font-weight: 300;
+}
+
+.search-btn {
+    padding: 18px 35px;
+    background: linear-gradient(135deg, #667eea 0%, #5a6fd8 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.search-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #4a5fc8 100%);
+    transform: translateY(-1px);
+}
+
+.search-btn:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.content {
+    padding: 40px 30px;
+}
+
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #721c24;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-radius: 15px;
+    margin: 20px 0;
+    display: none;
+    border: 1px solid #f5c6cb;
+    font-weight: 500;
+}
+
+.success {
+    text-align: center;
+    padding: 20px;
+    color: #155724;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-radius: 15px;
+    margin: 20px 0;
+    display: none;
+    border: 1px solid #c3e6cb;
+    font-weight: 500;
+}
+
+.info-section {
+    margin-bottom: 50px;
+}
+
+.section-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #667eea;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.data-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-size: 0.95em;
+    color: #6c757d;
+}
+
+.data-count {
+    background: #e9ecef;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.period-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.period-select {
+    padding: 12px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    background: white;
+    font-size: 0.95em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.period-select:hover {
+    border-color: #667eea;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+}
+
+.period-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+}
+
+.period-btn {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+}
+
+.period-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a5acd 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.period-btn:disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+    border: 1px solid #e9ecef;
+}
+
+.chart-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.chart-content {
+    padding: 20px;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+}
+
+.chart-content .js-plotly-plot {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.chart-content .plotly {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.chart-placeholder {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 1.1em;
+    text-align: center;
+}
+
+.basic-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.info-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    border-color: #667eea;
+}
+
+.info-label {
+    font-size: 0.95em;
+    color: #6c757d;
+    margin-bottom: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1.3;
+}
+
+.table-container {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+    border: 1px solid #e9ecef;
+}
+
+.table-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 25px;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.scrollable-table {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #667eea #f1f3f4;
+}
+
+.scrollable-table::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollable-table::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+.scrollable-table::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+.scrollable-table::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a5acd 100%);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1em;
+}
+
+.data-table th {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 15px 20px;
+    text-align: left;
+    font-weight: 700;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f1f3f4;
+    font-size: 0.95em;
+    vertical-align: middle;
+    font-weight: bold;
+}
+
+.data-table tr:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.change-up {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+.change-down {
+    color: #28a745;
+    font-weight: 700;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+    color: #6c757d;
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 1em;
+    font-weight: 500;
+}
+
+.format-number {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-weight: 600;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .header h1 {
+        font-size: 2.2em;
+    }
+    
+    .header p {
+        font-size: 1.1em;
+    }
+    
+    .search-section {
+        padding: 30px 20px;
+    }
+    
+    .content {
+        padding: 30px 20px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .period-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .basic-info {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .info-card {
+        padding: 20px;
+    }
+    
+    .section-title {
+        font-size: 1.5em;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+    
+    .scrollable-table {
+        max-height: 400px;
+    }
+    
+    .chart-content {
+        min-height: 400px;
+    }
+}
+
+/* 形态状态样式 */
+.pattern-bullish {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.pattern-bearish {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.pattern-neutral {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.pattern-weak {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+/* 技术指标信号样式 */
+.signal-bullish {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.signal-bearish {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.signal-neutral {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.signal-overbought {
+    color: #fd7e14;
+    font-weight: 600;
+}
+
+.signal-oversold {
+    color: #6f42c1;
+    font-weight: 600;
+}
+
+/* 支撑阻力强度样式 */
+.strength-strong {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.strength-medium {
+    color: #ffc107;
+    font-weight: 600;
+}
+
+.strength-weak {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.strength-very-strong {
+    color: #28a745;
+    font-weight: 700;
+}
+
+/* K线形态分析展开介绍样式 */
+.pattern-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.pattern-row:hover {
+    background-color: #f8f9fa;
+}
+
+.pattern-row.expanded {
+    background-color: #e3f2fd;
+}
+
+.pattern-description-row {
+    display: none;
+}
+
+.pattern-description-row.show {
+    display: table-row;
+}
+
+.pattern-description {
+    display: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #667eea;
+    margin: 0;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #495057;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+.pattern-description.show {
+    display: block;
+}
+
+.pattern-description h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.pattern-description p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.pattern-description .usage {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dee2e6;
+    font-style: italic;
+    color: #868e96;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 添加点击指示器 */
+.pattern-row td:first-child {
+    position: relative;
+}
+
+.pattern-row td:first-child::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #667eea;
+    font-size: 0.8em;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.pattern-row:hover td:first-child::after {
+    opacity: 1;
+}
+
+.pattern-row.expanded td:first-child::after {
+    content: '▼';
+    color: #495057;
+}
+
+/* 财务数据展开介绍样式 */
+.financial-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.financial-row:hover {
+    background-color: #f8f9fa;
+}
+
+.financial-row.expanded {
+    background-color: #e3f2fd;
+}
+
+.financial-description-row {
+    display: none;
+}
+
+.financial-description-row.show {
+    display: table-row;
+}
+
+.financial-description {
+    display: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #667eea;
+    margin: 0;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #495057;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+.financial-description.show {
+    display: block;
+}
+
+.financial-description h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.financial-description p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.financial-description .interpretation {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dee2e6;
+    font-style: italic;
+    color: #868e96;
+}
+
+/* 分析师评级展开样式 */
+.analyst-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.analyst-row:hover {
+    background-color: #f8f9fa;
+}
+
+.analyst-row.expanded {
+    background-color: #e3f2fd;
+}
+
+.analyst-description-row {
+    display: none;
+}
+
+.analyst-description-row.show {
+    display: table-row;
+}
+
+.analyst-description {
+    display: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #667eea;
+    margin: 0;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #495057;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+.analyst-description.show {
+    display: block;
+}
+
+.analyst-description h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.analyst-description p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.analyst-description .meaning {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dee2e6;
+    font-style: italic;
+    color: #868e96;
+}
+
+/* 技术指标分析样式 */
+.indicator-row {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.indicator-row:hover {
+    background-color: #f8f9fa;
+}
+
+.indicator-row.expanded {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+}
+
+/* 添加点击指示器 */
+.indicator-row td:first-child {
+    position: relative;
+}
+
+.indicator-row td:first-child::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #667eea;
+    font-size: 0.8em;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.indicator-row:hover td:first-child::after {
+    opacity: 1;
+}
+
+.indicator-row.expanded td:first-child::after {
+    content: '▼';
+    color: #495057;
+}
+
+.indicator-description-row {
+    display: none;
+    background-color: #f8f9fa;
+    border-left: 3px solid #2196f3;
+}
+
+.indicator-description-row.show {
+    display: table-row;
+    animation: slideDown 0.3s ease-out;
+}
+
+.indicator-description {
+    display: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #667eea;
+    margin: 0;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #495057;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+.indicator-description.show {
+    display: block;
+}
+
+.indicator-description h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+.indicator-description p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.indicator-description .interpretation {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dee2e6;
+    font-style: italic;
+    color: #868e96;
+}
+
+.indicator-description strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.batch-analysis-section {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.batch-analysis-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #667eea 0%, #5a6fd8 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+}
+
+.batch-analysis-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #4a5fc8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.batch-hint {
+    margin-top: 10px;
+    color: #6c757d;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.analysis-block {
+    margin-bottom: 30px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid #e9ecef;
+}
+
+.analysis-block h4 {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+}
+
+.conclusion-box {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-left: 4px solid #667eea;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 0;
+}
+
+.summary-box {
+    background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e8 100%);
+    border-left: 4px solid #4caf50;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 0;
+}
+
+.batch-analysis-card-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.batch-analysis-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    border-radius: 22px;
+    box-shadow: 0 6px 32px rgba(56, 249, 215, 0.18);
+    padding: 20px 32px 18px 32px;
+    text-decoration: none;
+    color: #1a2a3a;
+    transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+    min-width: 180px;
+    max-width: 280px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.batch-analysis-card:hover {
+    transform: translateY(-6px) scale(1.035);
+    box-shadow: 0 16px 48px rgba(56, 249, 215, 0.28);
+    background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);
+}
+
+.batch-card-icon {
+    font-size: 2.8em;
+    margin-bottom: 18px;
+    filter: drop-shadow(0 2px 8px rgba(67,233,123,0.18));
+}
+
+.batch-card-title {
+    font-size: 1.25em;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(255,255,255,0.12);
+}
+
+.batch-card-desc {
+    font-size: 1em;
+    color: #1a2a3a;
+    opacity: 0.85;
+    text-align: center;
+    line-height: 1.6;
+    margin-top: 2px;
+} 
+
+/* K线形态颜色标注 */
+.pattern-bullish {
+    color: #007500;
+    font-weight: bold;
+}
+
+.pattern-bearish {
+    color: #c40000;
+    font-weight: bold;
+}
+
+.pattern-neutral {
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.patterns-cell {
+    font-size: 0.9em;
+    line-height: 1.4;
+    font-weight: bold;
+} 

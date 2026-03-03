@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Data Analysis System</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- External JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Component -->
+        {% include 'components/header.html' %}
+        
+        <!-- Search Component -->
+        {% include 'components/search.html' %}
+        
+        <!-- Message Area -->
+        <div class="content">
+            <div id="errorMsg" class="error"></div>
+            <div id="successMsg" class="success"></div>
+            
+            <!-- Stock Data Area -->
+            <div id="stockData" style="display: none;">
+                <!-- Basic Info Component -->
+                {% include 'components/basic_info.html' %}
+                
+                <!-- Kline Chart Component -->
+                {% include 'components/kline_chart.html' %}
+                
+                <!-- Trading Data Component -->
+                {% include 'components/trading_data.html' %}
+                
+                <!-- Financial Data Component -->
+                {% include 'components/financial_data.html' %}
+                
+                <!-- Trend Analysis Component -->
+                {% include 'components/trend_analysis.html' %}
+            </div>
+        </div>
+
+        <!-- More Features -->
+        <div style="margin-top:16px; text-align:right; display: flex; justify-content: flex-end; gap: 10px;">
+            <a href="/info_collection" class="back-btn">Stock Info Collection</a>
+            <a href="/correlation_analysis" class="back-btn">Cross-market Correlation Analysis</a>
+            <a href="/backtest" class="back-btn">Offline Backtest & Model</a>
+        </div>
+    </div>
+    
+    <!-- External JavaScript Files -->
+    <script src="{{ url_for('static', filename='js/modules/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules/chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app_main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/score_comparison.js') }}"></script>
+</body>
+</html> 

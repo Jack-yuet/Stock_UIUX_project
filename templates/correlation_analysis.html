@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Market Correlation Analysis (US vs A-Share)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .analysis-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            align-items: flex-end;
+        }
+        .form-item {
+            flex: 1;
+        }
+        .form-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-item input, .form-item select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .analyze-btn {
+            padding: 10px 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .analyze-btn:hover {
+            background-color: #0056b3;
+        }
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .summary-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .data-table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .positive { color: #e74c3c; } /* 红色代表涨 */
+        .negative { color: #2ecc71; } /* 绿色代表跌 */
+        .matched { background-color: rgba(231, 76, 60, 0.05); }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+        .calculation-logic {
+            background: #f1f8ff;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .calculation-logic h3 {
+            margin-top: 0;
+            color: #0056b3;
+            font-size: 18px;
+        }
+        .calculation-logic ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+        .calculation-logic li {
+            margin-bottom: 10px;
+            color: #444;
+            line-height: 1.6;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+        }
+        .back-btn:hover { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="analysis-container">
+        <div class="header-section">
+            <h1>Cross-Market Correlation Analysis</h1>
+            <a href="/" class="back-btn">← Back to Home</a>
+        </div>
+        
+        <p style="color: #666; margin-bottom: 20px;">Analysis: Explore the impact of US stock moves (T) on A-Share moves (T+1).</p>
+
+        <div class="input-group">
+            <div class="form-item">
+                <label for="us_code">US Stock Code (e.g., AAPL, QQQ, ^IXIC)</label>
+                <input type="text" id="us_code" placeholder="Enter US Code" value="^IXIC">
+            </div>
+            <div class="form-item">
+                <label for="cn_code">CN Stock Code (e.g., 000001, 600519)</label>
+                <input type="text" id="cn_code" placeholder="Enter CN Code" value="000300">
+            </div>
+            <div class="form-item">
+                <label for="period">Analysis Period</label>
+                <select id="period">
+                    <option value="1mo">Last 1 Month</option>
+                    <option value="3mo">Last 3 Months</option>
+                    <option value="6mo">Last 6 Months</option>
+                    <option value="1y" selected>Last 1 Year</option>
+                    <option value="2y">Last 2 Years</option>
+                </select>
+            </div>
+            <button class="analyze-btn" onclick="startAnalysis()">Start Analysis</button>
+        </div>
+
+        <div id="resultsArea" style="display: none;">
+            <div class="summary-section" id="summarySection">
+                <!-- Filled by JS -->
+            </div>
+
+            <div class="calculation-logic" id="calculationLogic" style="display: none;">
+                <h3>Strategy Calculation Process</h3>
+                <div id="mathFormulas">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <h3>Daily Details</h3>
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>US Date (T)</th>
+                            <th>US Change</th>
+                            <th>CN Date (T+1)</th>
+                            <th>CN Change</th>
+                            <th>Signal Action</th>
+                            <th>Synchronization</th>
+                            <th>Wave Return</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">Fetching data and analyzing correlation, please wait...</div>
+    </div>
+
+    <script>
+        async function startAnalysis() {
+            const us_code = document.getElementById('us_code').value;
+            const cn_code = document.getElementById('cn_code').value;
+            const period = document.getElementById('period').value;
+
+            if (!us_code || !cn_code) {
+                alert('Please enter both stock codes');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultsArea').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/correlation_analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ us_code, cn_code, period })
+                });
+
+                const result = await response.json();
+                document.getElementById('loading').style.display = 'none';
+
+                if (result.success) {
+                    renderResults(result);
+                } else {
+                    alert(result.message || 'Analysis failed');
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Request failed, please try again');
+            }
+        }
+
+        function renderResults(result) {
+            const area = document.getElementById('resultsArea');
+            area.style.display = 'block';
+            document.getElementById('calculationLogic').style.display = 'block';
+
+            // Render summary
+            const summary = result.summary;
+            const records = result.daily_records;
+            const summaryHtml = `
+                <div class="summary-card">
+                    <h3>Correlation (Pearson)</h3>
+                    <div class="value">${summary.correlation}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Benchmark Return (Hold)</h3>
+                    <div class="value" style="color: #666;">${summary.buy_and_hold_return}%</div>
+                </div>
+                <div class="summary-card" style="border: 2px solid #e74c3c;">
+                    <h3>Strategy Return (Buy on US Up)</h3>
+                    <div class="value" style="color: #e74c3c;">${summary.strategy_return}%</div>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Vs Hold: ${(summary.strategy_return - summary.buy_and_hold_return).toFixed(2)}%</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Direction Sync Rate</h3>
+                    <div class="value">${summary.win_rate}%</div>
+                </div>
+                <div class="summary-card">
+                    <h3>CN Up when US Up (>1%)</h3>
+                    <div class="value">${summary.us_up_win_rate}%</div>
+                </div>
+            `;
+            document.getElementById('summarySection').innerHTML = summaryHtml;
+
+            // Generate math calculation process
+            const chronoRecords = [...records].reverse();
+            let tradePairs = [];
+            let currentBuy = null;
+
+            chronoRecords.forEach(r => {
+                if (r.action === '买入' || r.action === 'Buy') {
+                    currentBuy = r;
+                } else if ((r.action === '卖出' || r.action === 'Sell' || r.action === '期末平仓' || r.action === 'Close') && currentBuy) {
+                    tradePairs.push({
+                        buyDate: currentBuy.cn_date,
+                        buyPrice: currentBuy.cn_open,
+                        sellDate: r.cn_date,
+                        sellPrice: (r.action === '期末平仓' || r.action === 'Close') ? r.cn_close : r.cn_open,
+                        ret: r.strategy_return
+                    });
+                    currentBuy = null;
+                }
+            });
+
+            let mathHtml = `
+                <div style="font-family: 'Courier New', Courier, monospace; line-height: 1.8; background: #fff; padding: 15px; border-radius: 4px; border: 1px solid #d1d9e0;">
+                    <p style="margin-top:0; font-size: 16px;"><strong>Strategy Wave Trading Details (T+1 Simulation)</strong></p>
+                    <div style="max-height: 400px; overflow-y: auto;">
+            `;
+
+            if (tradePairs.length > 0) {
+                tradePairs.forEach((t, index) => {
+                    mathHtml += `
+                        <div style="margin-bottom: 20px; padding: 10px; border-bottom: 1px dashed #eee;">
+                            <div style="font-weight: bold; color: #0056b3; margin-bottom: 5px;">Wave ${index + 1}:</div>
+                            <div style="padding-left: 15px;">
+                                • Buy: ${t.buyDate} (Price: ${t.buyPrice})<br>
+                                • Sell: ${t.sellDate} (Price: ${t.sellPrice})<br>
+                                • Calc: <code>(${t.sellPrice} / ${t.buyPrice} - 1) × 100%</code> = <strong>${t.ret}%</strong>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                mathHtml += `
+                    </div>
+                    <p style="margin-top: 15px; border-top: 2px solid #007bff; pt: 10px;">
+                        <strong>Total Cumulative Return: ${summary.strategy_return}%</strong>
+                    </p>
+                `;
+            } else {
+                mathHtml += `<p>No complete trading waves.</p></div>`;
+            }
+            
+            mathHtml += `</div>`;
+            document.getElementById('mathFormulas').innerHTML = mathHtml;
+
+            // Render table
+            const body = document.getElementById('dataBody');
+            body.innerHTML = '';
+            records.forEach(row => {
+                const tr = document.createElement('tr');
+                if (row.matched) tr.classList.add('matched');
+                
+                // Translate actions
+                let actionDisplay = row.action || '--';
+                if (actionDisplay === '买入') actionDisplay = 'Buy';
+                if (actionDisplay === '卖出') actionDisplay = 'Sell';
+                if (actionDisplay === '期末平仓') actionDisplay = 'Close';
+
+                tr.innerHTML = `
+                    <td>${row.us_date}</td>
+                    <td class="${row.us_return >= 0 ? 'positive' : 'negative'}">${row.us_return > 0 ? '+' : ''}${row.us_return}%</td>
+                    <td>${row.cn_date}</td>
+                    <td class="${row.cn_return >= 0 ? 'positive' : 'negative'}">${row.cn_return > 0 ? '+' : ''}${row.cn_return}%</td>
+                    <td style="font-weight: bold; color: ${actionDisplay === 'Buy' ? '#e74c3c' : (actionDisplay === 'Sell' ? '#2ecc71' : '#666')}">
+                        ${actionDisplay}
+                    </td>
+                    <td>${row.matched ? '✅ Sync' : '❌ Diverge'}</td>
+                    <td class="${row.strategy_return > 0 ? 'positive' : (row.strategy_return < 0 ? 'negative' : '')}">
+                        ${row.strategy_return !== 0 ? (row.strategy_return > 0 ? '+' : '') + row.strategy_return + '%' : '--'}
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+    </script>
+</body>
+</html>
+
