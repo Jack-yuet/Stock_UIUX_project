@@ -17,7 +17,7 @@ from services.backtest_ml import MLBacktester, build_dataset_from_results
 # import yfinance as yf
 import warnings
 import logging
-from sklearn.metrics import roc_auc_score
+# from sklearn.metrics import roc_auc_score
 
 # Configure logging and suppress warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
