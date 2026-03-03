@@ -24,6 +24,8 @@
         }
     ],
     "env": {
-        "VERCEL": "true"
+        "VERCEL": "true",
+        "NUMBA_DISABLE_JIT": "1",
+        "NUMBA_CACHE_DIR": "/tmp"
     }
 }

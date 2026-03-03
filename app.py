@@ -2,6 +2,10 @@ import os
 import sys
 import logging
 
+# Disable Numba JIT to prevent caching errors in serverless environment
+os.environ['NUMBA_DISABLE_JIT'] = '1'
+os.environ['NUMBA_CACHE_DIR'] = '/tmp'
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
