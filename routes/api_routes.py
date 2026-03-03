@@ -15,9 +15,9 @@ from datetime import datetime
 from services.history_store import init_db, record_score_entry, fetch_history
 from services.backtest_ml import MLBacktester, build_dataset_from_results
 # import yfinance as yf
-# import warnings
-# import logging
-# from sklearn.metrics import roc_auc_score
+import warnings
+import logging
+from sklearn.metrics import roc_auc_score
 
 # Configure logging and suppress warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
