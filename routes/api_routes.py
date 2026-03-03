@@ -237,16 +237,16 @@ def get_trend_analysis():
         if not analysis_result:
             return jsonify({'success': False, 'message': 'Unable to fetch stock data'})
         
-        # Market env
-        if provided_market_env:
-            market_environment = provided_market_env
-        else:
-            try:
-                market_data = get_market_indices_data(period="3mo")
-                market_environment = calculate_market_environment_factor(market_data)
-            except Exception as e:
-                print(f"Failed to get market env: {e}")
-                market_environment = {'factor': 0, 'regime': 'neutral', 'details': {}}
+        # Market env (v1: Always return neutral/empty to simulate missing feature)
+        # if provided_market_env:
+        #     market_environment = provided_market_env
+        # else:
+        #     try:
+        #         market_data = get_market_indices_data(period="3mo")
+        #         market_environment = calculate_market_environment_factor(market_data)
+        #     except Exception as e:
+        #         print(f"Failed to get market env: {e}")
+        market_environment = {'factor': 0, 'regime': 'neutral (v1 ignored)', 'details': {}}
         
         # Format result
         formatted_result = {
@@ -958,38 +958,17 @@ def extract_patterns_from_api(analysis_result):
     return patterns
 
 def calculate_final_score(analysis_result):
-    """Calculate final score - consistent with frontend ScoreEngine"""
+    """
+    [v1 PROTOTYPE] Simple Scoring Logic
+    Only calculates average of technical indicators.
+    Ignores Market Environment and Trend Position.
+    """
     try:
-        # 1. Trend Score (Weight 33%)
-        trend_score = calculate_trend_score(analysis_result) * 0.825  # 33/40
+        # v1 Logic: Only Technical Score matters
+        technical_score, _ = calculate_technical_score(analysis_result)
         
-        # 2. Technical Score (Weight 28%)
-        technical_score, consistency_bonus = calculate_technical_score(analysis_result)
-        technical_score = technical_score * 0.8  # 28/35
-        consistency_bonus = consistency_bonus * 0.8
-        
-        # 3. Pattern Score (Weight 18%)
-        pattern_score = calculate_pattern_score(analysis_result) * 0.72  # 18/25
-        
-        # 4. Market Environment Score (Weight 9%)
-        market_score = calculate_market_environment_score(analysis_result) * 0.9
-        
-        # 5. Trend Position Score (Weight 7%)
-        position_score = calculate_trend_position_score(analysis_result)
-        
-        # 6. Volume Modifier (Weight 5%)
-        volume_modifier = calculate_volume_modifier(analysis_result)
-        volume_modifier = 1 + (volume_modifier - 1) * 0.2  # Reduce volume impact
-        
-        # 7. Final Calculation
-        total_score = max(0, trend_score + technical_score + consistency_bonus + pattern_score + market_score + position_score)
-        final_score = total_score * volume_modifier
-        
-        # Normalize to 0-10
-        final_score = final_score / 10
-        
-        # Limit to 0-10
-        final_score = max(0, min(10, final_score))
+        # Simple normalization (0-10)
+        final_score = max(0, min(10, technical_score / 35 * 10))
         
         return round(final_score, 1)
         
